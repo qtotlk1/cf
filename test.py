@@ -20,7 +20,7 @@ def bypass_clf(xff=None):
         driver.execute_cdp_cmd('Network.setExtraHTTPHeaders', {'headers': {'X-Forwarded-For': xff}})
     driver.execute_cdp_cmd("Network.setUserAgentOverride", {"userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0'})
     driver.execute_script(f'window.open("https://www.bing.com/turing/captcha/challenge?q=&iframeid=local-gen-{uuid.uuid4()}","_blank");') # open page in new tab
-    time.sleep(random.uniform(10,15))  # wait until page has loaded
+    time.sleep(random.uniform(3,5))  # wait until page has loaded
     try:
         driver.switch_to.window(window_name=driver.window_handles[0])   # print("switch to first tab")
         driver.close()  # close first tab
@@ -34,12 +34,12 @@ def bypass_clf(xff=None):
         try:
             check_mark = driver.find_element(By.ID, "challenge-stage").find_element(By.CLASS_NAME,"ctp-checkbox-container").find_element(By.CLASS_NAME, "ctp-checkbox-label").find_element(By.CSS_SELECTOR, "input")
         except:
-            time.sleep(random.uniform(3, 5))
+            time.sleep(random.uniform(1, 2))
             check_mark = driver.find_element(By.ID, "challenge-stage").find_element(By.CLASS_NAME,"ctp-checkbox-container").find_element(By.CLASS_NAME, "ctp-checkbox-label").find_element(By.CSS_SELECTOR, "input")
         print("查找到勾选框")
         check_mark.click()
         print("点击勾选框")
-        time.sleep(random.uniform(2, 3))
+        time.sleep(random.uniform(3, 5))
         driver.switch_to.default_content()
         print("切回默认")
         time.sleep(random.uniform(1, 2))
@@ -85,6 +85,6 @@ def handle_post():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
-    #bypass_clf(get_random_ip())
+    #bypass_clf()
 
 
