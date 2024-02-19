@@ -25,28 +25,34 @@ def bypass_clf(xff=None):
         driver.switch_to.window(window_name=driver.window_handles[0])   # print("switch to first tab")
         driver.close()  # close first tab
         driver.switch_to.window(window_name=driver.window_handles[0])  # switch back to new tab
-        iframes = driver.find_elements(By.TAG_NAME, "iframe")
-        if len(iframes)>0:
-            driver.switch_to.frame(0)
-        print("页面加载完成")
-        check_mark = driver.find_element(By.ID, "challenge-stage").find_element(By.CLASS_NAME,"ctp-checkbox-container").find_element(By.CLASS_NAME, "ctp-checkbox-label").find_element(By.CSS_SELECTOR, "input")
-        print("查找到勾选框")
-        check_mark.click()
-        print("点击勾选框")
-        time.sleep(random.uniform(3, 5))
-        driver.switch_to.default_content()
-        print("切回默认")
-        time.sleep(random.uniform(1, 2))
+        #print(driver.page_source)
+        if not any(item['name'] == 'cct' for item in driver.get_cookies()):
+            iframes = driver.find_elements(By.TAG_NAME, "iframe")
+            if len(iframes)>0:
+                driver.switch_to.frame(0)
+            print("页面加载完成")
+            check_mark = driver.find_element(By.ID, "challenge-stage").find_element(By.CLASS_NAME,"ctp-checkbox-container").find_element(By.CLASS_NAME, "ctp-checkbox-label").find_element(By.CSS_SELECTOR, "input")
+            print("查找到勾选框")
+            check_mark.click()
+            print("点击勾选框")
+            time.sleep(random.uniform(3, 5))
+            driver.switch_to.default_content()
+            print("切回默认")
+            time.sleep(random.uniform(1, 2))
     except:
         pass
     finally:
-        cookie_Verified=driver.get_cookies()
-        cookie_Verified=[{"name": cookie["name"], "value": cookie["value"]} for cookie in cookie_Verified]
-        if any(item['name'] == 'cct' for item in cookie_Verified):
-            print("验证成功")
-            print(cookie_Verified)
-            cookie_Verified = '; '.join(f"{item['name']}={item['value']}" for item in cookie_Verified)
-        else:
+        try:
+            cookie_Verified=driver.get_cookies()
+            cookie_Verified=[{"name": cookie["name"], "value": cookie["value"]} for cookie in cookie_Verified]
+            if any(item['name'] == 'cct' for item in cookie_Verified):
+                print("验证成功")
+                print(cookie_Verified)
+                cookie_Verified = '; '.join(f"{item['name']}={item['value']}" for item in cookie_Verified)
+            else:
+                print("验证失败")
+                cookie_Verified = ''
+        except:
             print("验证失败")
             cookie_Verified = ''
         try:
@@ -64,6 +70,10 @@ def handle_post():
     if request.is_json:
         # 获取JSON数据
         data = request.get_json()
+
+        # 这里可以对数据进行处理
+        # 例如：data_processed = process(data)
+        # 返回一个JSON响应
         cookies = bypass_clf()
         if "cct" in cookies:
             return jsonify({"status": "success", "result": {"cookies": cookies}}), 200
