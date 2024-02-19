@@ -6,7 +6,6 @@ import uuid
 import os
 import signal
 from flask import Flask, request, jsonify
-from ip_rand import get_random_ip
 if os.name != 'nt':  # nix system
     signal.signal(signal.SIGCLD, signal.SIG_IGN)
 
