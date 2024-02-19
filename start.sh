@@ -1,1 +1,0 @@
-xvfb-run --server-args="-screen 0 1900x1200x24" python3 test.py
