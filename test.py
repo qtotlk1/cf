@@ -6,8 +6,28 @@ import uuid
 import os
 import signal
 from flask import Flask, request, jsonify
+import threading
+import queue
 if os.name != 'nt':  # nix system
     signal.signal(signal.SIGCLD, signal.SIG_IGN)
+
+# 定义队列和队列长度
+q = queue.Queue(maxsize=5)
+# 在后台线程中运行函数并将结果存储到队列中
+def worker():
+    # 填满队列
+    while not q.full():
+        result = bypass_clf()
+        if result is not None and result != '':
+            q.put(result)
+
+    # 当队列不满时，继续添加元素
+    while True:
+        time.sleep(0.001)
+        if not q.full():
+            result = bypass_clf()
+            if result is not None and result != '':
+                q.put(result)
 
 def bypass_clf(xff=None):
     options = uc.ChromeOptions()
@@ -73,16 +93,18 @@ def handle_post():
         # 这里可以对数据进行处理
         # 例如：data_processed = process(data)
         # 返回一个JSON响应
-        cookies = bypass_clf()
-        if "cct" in cookies:
+        if not q.empty():
+            cookies = q.get()
             return jsonify({"status": "success", "result": {"cookies": cookies}}), 200
-        else:
-            return jsonify({"status": "failed"}), 500
+        return jsonify({"status": "failed"}), 500
     else:
         return jsonify({"error": "Request must be JSON"}), 400
 
 
 if __name__ == '__main__':
+    # 启动后台线程
+    t = threading.Thread(target=worker)
+    t.start()
     app.run(host='0.0.0.0', port=8080)
     #bypass_clf()
 
